@@ -20,12 +20,6 @@ auto get_time(const std::string &name, F &&f, Args && ... args)
     return t1 - t0;
 }
 
-template <class T>
-void f_increment(T &v)
-{
-    v++;
-}
-
 void tricky(Vector &vec)
 {
     auto sz = vec.size();
@@ -100,6 +94,37 @@ void lambda_simple(Vector &vec)
         inc(vec[i]);
 }
 
+void lambda_in_loop_simple(Vector &vec)
+{
+    auto sz = vec.size();
+    for (size_t i = 0; i < sz; ++i)
+    {
+        auto inc = [](auto &v) { ++v; };
+        inc(vec[i]);
+    }
+}
+
+void lambda_simple_capture(Vector &vec)
+{
+    auto c = rand();
+    auto sz = vec.size();
+    for (size_t i = 0; i < sz; ++i)
+    {
+        auto inc = [c = ++c](auto &v) { ++v; };
+        inc(vec[i]);
+    }
+}
+
+void lambda_simple_capture_foreach(Vector &vec)
+{
+    auto c = rand();
+    for (auto &v : vec)
+    {
+        auto inc = [c = ++c](auto &v) { ++v; };
+        inc(v);
+    }
+}
+
 void lambda_foreach(Vector &vec)
 {
     auto inc = [](auto &v) { ++v; };
@@ -113,6 +138,12 @@ void iterator(Vector &vec)
         ++*i;
 }
 
+template <class T>
+void f_increment(T &v)
+{
+    v++;
+}
+
 void function(Vector &vec)
 {
     auto sz = vec.size();
@@ -122,7 +153,7 @@ void function(Vector &vec)
 
 int main()
 {
-    srand(time(0));
+    srand((unsigned)time(0));
 
     const int n = 100'000'000;
     Vector vec(n);
@@ -161,7 +192,10 @@ int main()
     GET_TIME(foreach_postfix);
     GET_TIME(lambda_tricky_postfix_ptr);
     GET_TIME(lambda_simple);
+    GET_TIME(lambda_in_loop_simple);
+    GET_TIME(lambda_simple_capture);
     GET_TIME(lambda_foreach);
+    GET_TIME(lambda_simple_capture_foreach);
     GET_TIME(iterator);
     GET_TIME(function);
 
